@@ -1,0 +1,1 @@
+This is a simple to do app for maintaining daily chores. This project was developed using React JS for frontend development, and Node JS for backend development. Till now no database has been connected.
