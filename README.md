@@ -1,1 +1,1 @@
-This is a simple to do app for maintaining daily chores. This project was developed using React JS for frontend development, and Node JS for backend development. Till now no database has been connected.
+This is a simple to do app for maintaining daily chores. This project was developed using React JS for frontend development, and Node JS for backend development. Till now no database has been connected. At first, no styling was implemented. In the next phase, styling was done with CSS. and in the next phase, styling was done through Material UI instead of CSS.
