@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react';
 // import './App.css';
-import {Box,Button,TextField,Typography,Paper,List,ListItem,ListItemText,IconButton} from '@mui/material';
+import {Box,Button,TextField,Typography,Paper,List,ListItem,ListItemText,IconButton, Checkbox} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 
@@ -11,7 +11,11 @@ function App(){
   useEffect(()=> {
     fetch('http://localhost:5000/tasks')
     .then(res=>res.json())
-    .then(setTasks);
+    .then(data=>{
+      console.log('Fetched tasks:',data);
+      setTasks(data);
+  })
+    .catch(error=>console.error('Error fetching tasks:',error));
   },[]);
 
   const addTask=()=>{
@@ -26,9 +30,31 @@ function App(){
     setInput('');
   };
 
+const toggleTaskDone=(id,isDone)=>{
+  fetch(`http://localhost:5000/tasks/${id}`,{
+    method:'PUT',
+    headers:{
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify({isDone:!isDone})
+  })
+    .then(res=>{
+      if(!res.ok){
+        throw new Error('Network response was not ok');
+      }
+      return res.json();
+    })
+    .then(updatedTask=>{
+      setTasks(tasks=>tasks.map(task=>task._id===id ? updatedTask:task));
+    })
+    .catch(error=>{
+      console.error('Error toggling task:',error);
+    });
+};
+
   const deleteTask=(id)=>{
     fetch(`http://localhost:5000/tasks/${id}`,{method:'DELETE'})
-    .then(()=>setTasks(tasks=>tasks.filter(t=>t.id!==id)));
+    .then(()=>setTasks(tasks=>tasks.filter(t=>t._id!==id)));
   };
 
   return (
@@ -65,11 +91,25 @@ function App(){
         >Add</Button>
       </Box>
       <List>
-        {tasks.map(task=>(
-          <ListItem key={task.id} secondaryAction={<IconButton edge='end' color='error' onClick={()=>deleteTask(task.id)}><DeleteIcon/></IconButton>}>
-            <ListItemText primary={task.text}/>
+        {tasks && tasks.length>0 && tasks.map(task=>(
+          task?(
+          <ListItem key={task._id} secondaryAction={
+          <>
+          <Checkbox
+          edge="start"
+          checked={task.isDone??false}
+          onChange={()=>toggleTaskDone(task._id,task.isDone)}/>
+
+          <IconButton edge='end' color='error' onClick={()=>deleteTask(task._id)}><DeleteIcon/></IconButton>
+          </>
+          }>
+            <ListItemText primary={task.text|| ''}
+             style={{textDecoration:task.isDone?'line-through':'none'}}
+            />
           </ListItem>
-        ))}
+        ): null
+        )
+      )}
       </List>
      </Paper>
 
